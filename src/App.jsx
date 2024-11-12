@@ -4,7 +4,7 @@ import * as petService from './services/petService'
 
 import PetList from './components/PetList';
 import PetDetail from './components/PetDetail';
-
+import PetForm from './components/PetForm';
 
 
 const App = () => {
@@ -40,13 +40,31 @@ const App = () => {
       setIsFormOpen(!isFormOpen)
     }
 
+    const handleAddPet = async(FormData) => {
+      try{
+        const newPet = await petService.create(FormData)
+        // Add the pet object and the current petList to a new array, and
+        // set that array as the new petList
+        setPetList([newPet, ...petList]);
+        setIsFormOpen(false)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+
   return (
     <>
     <PetList petList={petList} 
     updateSelected={updateSelected}
     handleFormView={handleFormView}
+    isFormOpen={isFormOpen}
     />;
+    {isFormOpen ? (
+      <PetForm handleAddPet={handleAddPet}/>
+    ) : (
     <PetDetail selected={selected} />
+    )}
     </>
   )
 };
