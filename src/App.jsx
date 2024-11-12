@@ -36,7 +36,8 @@ const App = () => {
       setSelected(pet)
     }
 
-    const handleFormView = () => {
+    const handleFormView = (pet) => {
+      if(!pet.name) setSelected(null)
       setIsFormOpen(!isFormOpen)
     }
 
@@ -52,6 +53,32 @@ const App = () => {
       }
     }
 
+    // src/App.jsx
+
+const handleUpdatePet = async (formData, petId) => {
+  try {
+    const updatedPet = await petService.updatePet(formData, petId);
+
+    // handle potential errors
+    if (updatedPet.error) {
+      throw new Error(updatedPet.error);
+    }
+
+    const updatedPetList = petList.map((pet) =>
+      // If the id of the current pet is not the same as the updated pet's id, return the existing pet. If the id's match, instead return the updated pet.
+      pet._id !== updatedPet._id ? pet : updatedPet
+    );
+    // Set petList state to this updated array
+    setPetList(updatedPetList);
+    // If we don't set selected to the updated pet object, the details page will reference outdated data until the page reloads.
+    setSelected(updatedPet);
+    setIsFormOpen(false);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
 
   return (
     <>
@@ -61,9 +88,9 @@ const App = () => {
     isFormOpen={isFormOpen}
     />;
     {isFormOpen ? (
-      <PetForm handleAddPet={handleAddPet}/>
+      <PetForm handleAddPet={handleAddPet} handleUpdatePet={handleUpdatePet} selected={selected}/>
     ) : (
-    <PetDetail selected={selected} />
+    <PetDetail selected={selected} handleFormView={handleFormView} />
     )}
     </>
   )
